@@ -44,6 +44,29 @@ private:
 	vector<T> elems_;
 };
 
+//------------
+
+struct substitution_failure{};
+
+template<typename T>
+struct substitution_succeeded: std::true_type {};
+
+template<>
+struct substitution_succeeded<substitution_failure>: std::false_type{};
+
+template <typename M>
+struct get_matrix_type_result {
+  template <typename T, size_t N, typename = std::enable_if<(N >= 1)>>
+  static bool check(const Matrix<T, N> &m);
+
+  static substitution_failure check(...);
+
+  using type = decltype(check(std::declval<M>()));
+};
+
+template<typename T>
+struct has_matrix_type: substitution_succeeded<typename get_matrix_type_result<T>::type>{};
+//----
 
 
 template<typename T, size_t N>
